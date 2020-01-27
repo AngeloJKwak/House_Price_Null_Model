@@ -9,7 +9,15 @@ test_DT <- fread('./project/volume/data/raw/Stat_380_test.csv')
 
 avg_price<-mean(train_DT$SalePrice)
 
-test_DT$SalePrice<-avg_price
+
+#group by airport first to make a little more interesting model
+
+bldg_types <-train_DT[,.(SalePrice=mean(SalePrice)),by=BldgType]
+
+setkey(bldg_types,BldgType)
+setkey(test_DT,BldgType)
+
+test<-merge(test_DT,bldg_types, all.x=T)
 
 # in my example I do not need to make a submit file, but if I did I would do something like this
-fwrite(test_DT[,.(Id,SalePrice)],"./project/volume/data/processed/submit.csv")
+fwrite(test[,.(Id,SalePrice)],"./project/volume/data/processed/submit.csv")
