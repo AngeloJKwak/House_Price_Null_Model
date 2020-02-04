@@ -2,3 +2,15 @@
 .Rhistory
 .RData
 .Ruserdata
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+#Raw Data Files
+#House_Price_Null_Model/project/volume/data/raw/
