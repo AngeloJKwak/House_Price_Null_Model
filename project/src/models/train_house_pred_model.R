@@ -40,4 +40,3 @@ submit<-test[,.(Id,SalePrice)]
 
 #now we can write out a submission
 fwrite(submit,"./project/volume/data/processed/submit_lm.csv")
-
