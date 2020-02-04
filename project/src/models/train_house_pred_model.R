@@ -1,29 +1,43 @@
+library(caret) 
 library(data.table)
 library(Metrics)
 
+#read in data
+train <- fread('./project/volume/data/raw/Stat_380_train.csv')
+test <- fread('./project/volume/data/raw/Stat_380_test.csv')
 
-train_DT <- fread('./project/volume/data/raw/Stat_380_train.csv')
-test_DT <- fread('./project/volume/data/raw/Stat_380_test.csv')
+#Fill in any null values with 0
+train[is.na(train)] <- 0
 
-# make a null model
+train_y<-train$SalePrice
+test_y<-train$SalePrice
 
-avg_price<-mean(train_DT$SalePrice)
+#I ran into issues trying to work with dummy variables, so while this is still here, they were not used any further in the model
+dummies <- dummyVars(SalePrice ~ LotArea + BldgType + OverallQual + OverallCond + PoolArea + SalePrice, data = train)
+#train<-predict(dummies, newdata = train)
+#test<-predict(dummies, newdata = train)
 
+#reformat after dummyVars and add back response Var
+train<-data.table(train)
+train$SalePrice<-train_y
+test<-data.table(test)
 
-#group by airport first to make a little more interesting model
+#fit a linear model
+lm_model<-lm(SalePrice ~ LotArea + BldgType + OverallQual + OverallCond + PoolArea + TotRmsAbvGrd + GrLivArea + YearBuilt + BedroomAbvGr + SalePrice,data=train)
 
-bldg_types <-train_DT[,.(SalePrice=mean(SalePrice)),by=BldgType]
+#assess model
+summary(lm_model)
 
-setkey(bldg_types,BldgType)
-setkey(test_DT,BldgType)
+#save model
+saveRDS(dummies,"./project/volume/models/House_Prediction_lm.dummies")
+saveRDS(lm_model,"./project/volume/models/House_Prediction_lm.model")
 
-test<-merge(test_DT,bldg_types, all.x=T)
+#use the model with the test dataset 
+test$SalePrice<-predict(lm_model,newdata = test)
 
-# in my example I do not need to make a submit file, but if I did I would do something like this
-fwrite(test[,.(Id,SalePrice)],"./project/volume/data/processed/submit.csv")
+#format the final table for submission
+submit<-test[,.(Id,SalePrice)]
 
+#now we can write out a submission
+fwrite(submit,"./project/volume/data/processed/submit_lm.csv")
 
-##NEW STUFF
-#pick three or four variables to work with for building a model. 
-#will work better if continuous
-#A lot of the stuff above should be moved into features
