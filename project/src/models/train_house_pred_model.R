@@ -1,6 +1,7 @@
 library(caret) 
 library(data.table)
 library(Metrics)
+library(glmnet)
 
 #read in data
 train <- fread('./project/volume/data/raw/Stat_380_train.csv')
