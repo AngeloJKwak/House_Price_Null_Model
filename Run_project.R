@@ -1,1 +1,1 @@
-source("./project/src/models/train_house_pred_model.R")
+source("./project/src/models/xgboost_house_model.R")
